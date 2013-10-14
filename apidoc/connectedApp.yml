@@ -1,0 +1,711 @@
+---
+name: ConnectedApp
+since: "1.0.0"
+platforms: [android, iphone, ipad]
+excludes:
+    methods: [addEventListener, fireEvent, removeEventListener, applyProperties]
+    properties: [bubbleParent]
+summary: Represents a Salesforce Connected Application
+description: |
+    A ConnectedApp object gives you access to your Salesforce connected application.
+    Create a `new` ConnectedApp object for each Salesforce Connected Application that you need
+    to access in your application.
+
+methods:
+  - name: sobjects
+    summary: Lists the available objects and their metadata for your organization's data.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<sobjects>
+
+  - name: metadata
+    summary: Describes the individual metadata for the specified object.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<metadata>
+
+  - name: describe
+    summary: Completely describes the individual metadata at all levels for the specified object.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<describe>
+
+  - name: create
+    summary: Creates a new record.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<create>
+
+  - name: retrieve
+    summary: Retrieves a record based on the specified object ID.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<retrieve>
+
+  - name: update
+    summary: Updates a record based on the specified object ID.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<update>
+
+  - name: remove
+    summary: Deletes a record based on the specified object ID.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<remove>
+
+  - name: upsertBlob
+    summary: Inserts or updates blob data for a record.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<upsertBlob>
+
+  - name: retrieveBlob
+    summary: Retrieves the specified blob field from an individual record.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<retrieveBlob>
+
+  - name: retrieveExternal
+    summary: Retrieves a record with a specific external ID.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<retrieveExternal>
+
+  - name: upsertExternal
+    summary: Creates new records or updates existing records (upserts records) based on the value of a specified external ID field.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<upsertExternal>
+
+  - name: query
+    summary: Executes the specified SOQL query.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<query>
+
+  - name: searchQuery
+    summary: Executes the specified SOSL search.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<searchQuery>
+
+  - name: searchScopeOrder
+    summary: Returns an ordered list of objects in the default global search scope of a logged-in user.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<searchScopeOrder>
+
+  - name: loginApi
+    summary: Login using the username-password authentication flow.
+    description: |
+        Ensure that the `clientId` and `clientSecret` properties of the ConnectedApp object are set
+        before calling this method. Either set the `securityToken` property of the ConnectedApp object
+        before calling this method or provide the `securityToken` in the arguments.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<loginApi>
+
+  - name: login
+    summary: Login using the user-agent authentication flow.
+    description: |
+        Ensure that the `clientId` property of the ConnectedApp object is set
+        before calling this method.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<login>
+
+  - name: logout
+    summary: Logout the current user.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<logout>
+
+  - name: refresh
+    summary: Request a new access token.
+    description: |
+        This method is only applicable when using the user-agent authentication flow (ie. `login`) AND
+        the connected application's OAuth scope includes the use of the refresh_token.
+
+        It is up to the application to determine when an access token is no longer valid, and when to apply for a new one.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<refresh>
+
+examples:
+  - title: Create a connected app
+    example: |
+      This example demonstrates the creation of a connected app instance.
+
+          var connectedApp = new salesforce.ConnectedApp({
+                  clientId : <DEVELOPER CLIENT ID>,
+                  clientSecret : <DEVELOPER SECRET>
+              });
+
+  - title: Get a list of objects
+    example: |
+      This example demonstrates retrieving a list of all SObjects.
+
+          connectedApp.sobjects({
+              success : function(results) {
+                  Ti.API.info('Number of objects: ' + results.sobjects.length;
+              },
+              error: function(error) {
+                  Ti.API.error('ERROR:' + error.message);
+              }
+          });
+
+  - title: Create a record
+    example: |
+      This example demonstrates creating a new record.
+
+          connectedApp.create({
+              name: 'Account',
+              data: {
+                  Name: 'Express Logistics and Transport'
+              },
+              success: function(results) {
+                  Ti.API.info('Record id: ' + results.id;
+              },
+              error: function(error) {
+                  Ti.API.error('ERROR:' + error.message);
+              }
+          });
+
+  - title: Retrieve a record with fields
+    example: |
+      This example demonstrates retrieving a record with fields. Note that if the `fields` property is not
+       specified it will return all fields for the record.
+
+          connectedApp.retrieve({
+              name: 'Account',
+              id: recordId,
+              fields: [ 'AccountNumber', 'BillingPostalCode' ],
+              success: function(results) {
+                  Ti.API.info('AccountNumber: ' + results.AccountNumber);
+                  Ti.API.info('BillingPostalCode: ' + results.BillingPostalCode);
+              },
+              error: function(error) {
+                  Ti.API.error('ERROR:' + error.message);
+              }
+          });
+
+  - title: Update a record
+    example: |
+      This example demonstrates updating a record.
+
+          connectedApp.update({
+              name: 'Account',
+              id: recordId,
+              data: {
+                  BillingCity: 'San Francisco'
+              },
+              success: function(results) {
+                  Ti.API.info('Successfully updated');
+              },
+              error: function(error) {
+                  Ti.API.error('ERROR:' + error.message);
+              }
+          });
+
+  - title: Query records
+    example: |
+      This example demonstrates executing a SOQL query.
+
+          connectedApp.query({
+              name: 'Account',
+              soql: 'SELECT name from Account'
+              success: function(results) {
+                  Ti.API.info('Total Size: ' + results.totalSize);
+                  Ti.API.info('Number of records: ' + results.records.length);
+              },
+              error: function(error) {
+                  Ti.API.error('ERROR:' + error.message);
+              }
+          });
+
+  - title: Upsert blob data
+    example: |
+      This example demonstrates upserting blob data
+
+          var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Default.png');
+          blob = file.read();
+
+          connectedApp.upsertBlob({
+              name: 'Document',
+              blobField: 'Body',
+              data: {
+                  "Name" : "Default image",
+                  "FolderId": "00li0000000UAFuAAO",
+                  "Body": blob,
+                  "Type": 'png'
+                  // ContentType automatically determined from blob's mime type
+              },
+              success: function(results) {
+                  Ti.API.info('id: ' + results.id);
+              },
+              error: function(error) {
+                  Ti.API.error('ERROR:' + error.message);
+              },
+              progress: function(e) {
+                  Ti.API.info((e * 100) + '%');
+              }
+          });
+
+  - title: Retrieve blob data
+    example: |
+      This example demonstrates retrieving blob data
+
+          connectedApp.retrieveBlob({
+              name: 'Document',
+              id: recordId,
+              blobField: 'Body',
+              success: function(results) {
+                  // results is a Ti.Blob object
+                  Ti.API.info('Blob mimetype: ' + results.mimeType);
+                  Ti.API.info('Blob size: ' + results.size);
+              },
+              error: function(error) {
+                  Ti.API.error('ERROR:' + error.message);
+              },
+              progress: function(e) {
+                  Ti.API.info((e * 100) + '%');
+              }
+          });
+
+properties:
+  - name: clientId
+    summary: The `Consumer Key` from the connected application definition.
+    type: String
+
+  - name: clientSecret
+    summary: The `Consumer Secret` from the connected application definition.
+    type: String
+
+  - name: apiVersion
+    summary: Salesforce version to use.
+    description: |
+        The default value is 'v26.0'.
+    type: String
+
+  - name: instanceUrl
+    summary: Identifies the Salesforce instance that API calls should be sent.
+    description: |
+        This value will be set after successful authentication, but can be set by the application.
+
+        The default value is 'http://na1.salesforce.com'.
+    type: String
+
+  - name: timeout
+    summary: Timeout in milliseconds when the connection should be aborted.
+    description: |
+        The default value is 5000.
+    type: Number
+
+  - name: currentUser
+    summary: Currently authenticated user.
+    description: |
+        This value will be set after successful authentication, but can be set by the application.
+    type: String
+
+  - name: securityToken
+    summary: User's security token
+    description: |
+        A security token is an automatically-generated key from Salesforce.
+
+        The securityToken is required when using the username-password authentication flow (ie. the `loginApi`)
+    type: String
+
+  - name: accessToken
+    summary: Access token that acts as a session ID that the application uses for making requests.
+    description: |
+        This token will be set after successful authentication, but can be set by the application
+        if the application persists this value and restores it after the application launches.
+
+        This token should be protected as though it were user credentials.
+
+        **NOTE: For security reasons, the module does not persist any of the authentication
+        information itself. If the application requires persistence of authentication
+        information it must do that itself and set the properties on the ConnectedApp
+        object.**
+    type: String
+
+  - name: refreshToken
+    summary: Token that can be used in the future to obtain new access tokens.
+    description: |
+        This token is only applicable when using the user-agent authentication flow (ie. `login`) AND
+        the connected application's OAuth scope includes the use of the refresh_token.
+
+        This token will be set after successful authentication, but can be set by the application
+        if the application persists this value and restores it after the application launches.
+
+        This token should be protected as though it were user credentials.
+
+        **NOTE: For security reasons, the module does not persist any of the authentication
+        information itself. If the application requires persistence of authentication
+        information it must do that itself and set the properties on the ConnectedApp
+        object.**
+    type: String
+
+  - name: isLoggedIn
+    summary: Indicates if the user is currently logged in.
+    type: Boolean
+
+  - name: loginUrl
+    summary: Server address to use for authentication.
+    description: |
+        When using the user-agent authentication flow (ie. `login`), the default url is
+        'https://login.salesforce.com/services/oauth2/authorize'.
+
+        When using the username-password authentication flow (ie. `loginApi`), the default url is
+        'https://login.salesforce.com/services/oauth2/token'.
+    type: String
+
+  - name: redirectUri
+    summary: The callback url for the connected application definition.
+    description: |
+        This property only applies when using the user-agent authentiction flow.
+
+        The default value is 'https://login.salesforce.com/services/oauth2/success'.
+    type: String
+
+---
+name: sobjects
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `metadata` method
+extends: commonArgs
+
+---
+name: metadata
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `metadata` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+---
+name: describe
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `describe` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+---
+name: create
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `create` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+  - name: data
+    summary: Dictonary of key-value pairs for the record.
+    type: Dictionary
+
+---
+name: retrieve
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `retrieve` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+  - name: id
+    summary: Identifier of SObject
+    type: String
+
+  - name: fields
+    summary: Fields you want to retrieve
+    description: |
+        This is an optional property that can be used to specify which fields of the
+        record to retrieve. If this property is not specified then all fields of the record
+        are retrieved.
+
+        This value can either be a comma-delimited list of field names or an array of field names.
+    type: [String, Array<String>]
+
+---
+name: update
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `update` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+  - name: id
+    summary: Identifier of SObject
+    type: String
+
+  - name: data
+    summary: Dictonary of key-value pairs for the record.
+    type: Dictionary
+
+---
+name: remove
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `remove` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+  - name: id
+    summary: Identifier of SObject
+    type: String
+
+---
+name: upsertBlob
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `upsertBlob` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+  - name: blobField
+    summary: Name of the blob field in the record
+    description: |
+        Ensure that the `data` dictionary contains a key with this name and
+        a value of a Ti.Blob object.
+    type: String
+
+  - name: data
+    summary: Dictonary of key-value pairs for the record.
+    description: |
+        The content type of the Ti.Blob object will be set as the contentType
+        of the blob object. If a different content type is needed, set the 'ContentType'
+        property in the data dictionary.
+    type: Dictionary
+
+  - name: id
+    summary: Identifier of the SObject
+    description: |
+        This property is only required when updating an existing record.
+        If this property is not provided then a create will be performed.
+    type: String
+
+---
+name: retrieveBlob
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `retrieveBlob` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+  - name: id
+    summary: Identifier of SObject
+    type: String
+
+  - name: blobField
+    summary: Name of the blob field in the record
+    type: String
+
+---
+name: retrieveExternal
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `retrieveExternal` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+  - name: fieldName
+    summary: External field name
+    type: String
+
+  - name: fieldValue
+    summary: External field value
+    type: String
+
+---
+name: upsertExternal
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `upsertExternal` method
+extends: commonArgs
+properties:
+  - name: name
+    summary: SObject name
+    type: String
+
+  - name: fieldName
+    summary: External field name
+    type: String
+
+  - name: fieldValue
+    summary: External field value
+    type: String
+
+  - name: data
+    summary: Dictonary of key-value pairs for the record.
+    type: Dictionary
+
+---
+name: query
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `query` method
+extends: commonArgs
+properties:
+  - name: soql
+    summary: A SOQL query
+    type: String
+
+  - name: nextRecordsUrl
+    summary: For retrieving additional query results if the initial results are too large.
+    description: |
+        This property should not be defined for the initial query. It should
+        only be defined when the initial results are too large and you are making the successive
+        calls to query the next set of records.
+
+        The value for this property is returned in the results to the previous call to `query`.
+    type: String
+    optional: true
+
+---
+name: searchQuery
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `searchQuery` method
+extends: commonArgs
+properties:
+  - name: sosl
+    summary: A SOSL statement
+    type: String
+
+---
+name: searchScopeOrder
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `searchScopeOrder` method
+extends: commonArgs
+
+---
+name: loginApi
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `loginApi` method
+extends: commonArgs
+properties:
+  - name: username
+    summary: The user name to login.
+    type: String
+
+  - name: password
+    summary: The password for the user
+    type: String
+
+  - name: securityToken
+    summary: User's security token
+    description: |
+        Default value is the `securityToken` property of the ConnectedApp object.
+    type: String
+    optional: true
+
+---
+name: login
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `login` method
+extends: commonArgs
+properties:
+  - name: username
+    summary: The user name to login.
+    type: String
+
+  - name: password
+    summary: The password for the user
+    type: String
+
+  - name: title
+    summary: Title for the modal dialog
+    description: |
+        Default value is 'salesforce'.
+    type: String
+    optional: true
+
+  - name: width
+    summary: Width of the modal dialog
+    description: |
+        Default value is '100%'
+    type: [String, Number]
+    optional: true
+
+  - name: height
+    summary: Height of the modal dialog
+    description: |
+        Default value is '100%'
+    type: [String, Number]
+    optional: true
+
+  - name: scalesPageToFit
+    summary: Scale contents to fit the web view
+    description: |
+        Default value is false
+    type: Boolean
+    optional: true
+
+  - name: showScrollbars
+    summary: Show scroll bars in the web view
+    description: |
+        Default value is true
+    type: Boolean
+    optional: true
+
+---
+name: logout
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `logout` method.
+extends: commonArgs
+
+---
+name: refresh
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Argument passed to the `refresh` method.
+extends: commonArgs

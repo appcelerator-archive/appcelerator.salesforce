@@ -1,0 +1,145 @@
+---
+name: commonArgs
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Common argument properties available for every method call.
+description: |
+    Every method allows for the definition of several optional callbacks. Normally you
+    will define both a `success` and an `error` callback so your application can handle
+    the result of the method call.
+
+examples:
+  - title: Example of callbacks
+    example: |
+      The following example demonstrates the definition of all of the supported callbacks
+      available on every method call. All of the callbacks are optional.
+
+          salesforce.versions({
+              success: function(results, meta) {
+                  Ti.API.info('Number of versions: ' + results.length);
+                  Ti.API.info(JSON.stringify(results);
+
+                  Ti.API.info('Request time: ' + meta.time);
+              },
+              error: function(error, meta) {
+                  Ti.API.error('ERROR:' + error.message);
+              },
+              progress: function(percent) {
+                  Ti.API.info('Percent complete: ' + (percent * 100) + '%');
+              },
+              beforeSend: function(xhr) {
+                  Ti.API.info('About to send request');
+              }
+          });
+
+properties:
+  - name: success
+    summary: Callback function to be called when the operation completes successfully.
+    description: |
+        This callback function receives both the response and request metadata as parameters.
+
+        The first parameter to this callback is the response from Salesforce. The value of the
+        response varies based on the method that is executed. Refer to the
+        [Force.com REST API](http://www.salesforce.com/us/developer/docs/api_rest/index.htm)
+        documentation for details on the expected response.
+
+        The second parameter to this callback is the [request metadata](requestMetadata) dictionary.
+        This parameter is optional and is provided for informational purposes.
+
+        This property is optional.
+    type: Callback
+    optional: true
+
+  - name: error
+    summary: Callback function to be called when the operation fails to complete.
+    description: |
+        This callback function receives both the error and request metadata as parameters.
+
+        The first parameter to this callback is the [error details](errorDetails) dictionary.
+
+        The second parameter to this callback is the [request metadata](requestMetadata) dictionary.
+        This parameter is optional and is provided for informational purposes.
+
+        This property is optional.
+    type: Callback
+    optional: true
+
+  - name: progress
+    summary: Callback function to be called at regular intervals as the request data is being transmitted.
+    description: |
+        This parameter passed to this callback is a value that ranges from 0.0 to 1.0.
+
+        This property is optional.
+    type: Callback<Number>
+    optional: true
+
+  - name: beforeSend
+    summary: Callback function to be called just before sending the request.
+    description: |
+        The parameter passed to this callback is the [Ti.Network.HTTPClient](Ti.Network.HTTPClient)
+        object for the request that is about to be sent.
+
+        This property is optional.
+    type: Callback<Ti.Network.HTTPClient>
+    optional: true
+
+  - name: timeout
+    summary: Timeout in milliseconds when the connection should be aborted.
+    description: |
+        The timeout property of the [ConnectedApp](ConnectedApp) object is used on every request, but can
+        be overridden for individual requests by including this property.
+
+        This property is optional.
+
+---
+name: errorDetails
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Details about the error.
+properties:
+  - name: message
+    summary: The error message
+    type: String
+
+  - name: errorCode
+    summary: Code for the error that occurred
+    type: Number
+
+  - name: details
+    summary: Additional details about the error (if known)
+    type: String
+
+---
+name: requestMetadata
+platforms: [android, iphone, ipad]
+since: "1.0.0"
+summary: Request metadata
+properties:
+  - name: url
+    summary: The url used for the request
+    type: String
+
+  - name: status
+    summary: HTTP status code
+    type: Number
+
+  - name: statusText
+    summary: The network status text
+    type: String
+
+  - name: contentType
+    summary: The 'Content-Type' header returned from the request
+    type: String
+
+  - name: bytesReceived
+    summary: Number of bytes received
+    type: Number
+
+  - name: bytesSent
+    summary: Number of bytes sent
+    type: Number
+
+  - name: time
+    summary: Total round-trip time of the request, in milliseconds
+    type: Number
+
