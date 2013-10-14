@@ -1,14 +1,54 @@
 ---
 name: Modules.appcelerator.salesforce
+platforms: [android, iphone, ipad]
 summary: Allows Titanium client applications to access Salesforce.
 extends: Titanium.Module
-platforms: [android, iphone, ipad]
 since: "1.0.0"
 excludes:
     methods: [addEventListener, fireEvent, removeEventListener, applyProperties]
     properties: [bubbleParent]
 description: |
-    This module provides access to the Salesforce APIs.
+    This module provides access to the Salesforce Force.com APIs.
+
+    ### Salesforce Resources
+
+    - [developerforce signup](http://events.developerforce.com/signup)
+    - [developerforce](http://developerforce.com)
+    - [Force.com REST API](http://www.salesforce.com/us/developer/docs/api_rest/index.htm)
+    - [Understanding Authentication](http://www.salesforce.com/us/developer/docs/api_rest/Content/intro_understanding_authentication.htm)
+    - [Security and the API](http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_concepts_security.htm)
+
+    ### Requirements
+
+    - Obtain your [Salesforce Developer instance](https://events.developerforce.com/signup) from the Salesforce Platform
+
+    ### Create a Connected App on Salesforce
+
+    You must first configure your application on the Salesforce platform and retrieve your consumer key and consumer secret.
+    The following instructions provide steps to set up a Connected App. Please refer to the Salesforce web site for the latest
+    instructions.
+
+    1. Login to your developer account
+    2. Navigate to the 'Setup' page
+    3. On the left menu, select 'Build', 'Create', and then 'Apps'
+    4. In the "Connected Apps" section, click 'New' to create a new connected app.
+    5. Fill in the required fields
+    6. Click 'Enable OAuth Settings' and fill in the required fields. For the 'Callback URL' you can specify the default URL of 'https://login.salesforce.com/services/oauth2/success'.
+    7. Click 'Save'
+    8. Note your application's consumer key, consumer secret, and callback URL
+
+    ### Authentication
+
+    Your application can be configured to use one of two OAuth 2.0 [authentication flows](http://www.salesforce.com/us/developer/docs/api_rest/Content/intro_understanding_authentication.htm).
+
+    When using the 'Username-password flow' each user must provide their security token when calling [loginApi](ConnectedApp).
+    Users can obtain their security token by changing their password or resetting their security token via the Salesforce user interface.
+    When a user changes their password or resets their security token, Salesforce sends a new security token to the email address on the
+    user's Salesforce record. The security token is valid until a user resets their security token, changes their password, or has their password reset.
+    For more information on security tokens see "Resetting Your Security Token" in the Salesforce online help. Refer to [Security and the API](http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_concepts_security.htm)
+    document for further details.
+
+    When using the 'User-agent flow' the security token is not required and the Salesforce web server will provide the required authentication support.
 
     ### Getting Started
 
@@ -23,11 +63,62 @@ description: |
 
         The `salesforce` variable is a reference to the Module object.
 
+    ### Connected App
 
+    Access to each of your connected app's is done via an instance of a [ConnectedApp](ConnectedApp) object. When creating an new instance of a
+    ConnectedApp
+
+    1. Require the module
+
+            var salesforce = require('appcelerator.salesforce');
+
+    2. Create a 'connected app' object for each salesforce app instance
+
+            var connectedApp = new salesforce.ConnectedApp({
+                    clientId : <DEVELOPER CLIENT ID>,
+                    clientSecret : <DEVELOPER SECRET>
+                });
+
+    3. Login using either the username-password (API) or user-agent flow (web page)
+
+            connectedApp.securityToken = <SECURITY TOKEN>;
+            connectedApp.loginApi({
+                username : <USERNAME>,
+                password : <PASSWORD>,
+                success : function(e, meta) {...},
+                error : function(e, meta) {...}
+            });
+
+        -or-
+
+            connectedApp.login({
+                success : function(e, meta) {...},
+                error : function(e, meta) {...}
+            });
+
+    All of the exposed methods accept a dictionary of properties as their only argument.
+    Refer to the [ConnectedApp](ConnectedApp) documentation for details about each method.
+
+    **NOTE: For security reasons, the module does not persist any of the authentication
+    information itself. If the application requires persistence of authentication
+    information it must do that itself and set the properties on the ConnectedApp
+    object.**
+
+    ### Common argument properties
+
+    Every method allows for the definition of several [optional callback properties](commonArgs) in the
+    dictionary argument that is passed to the each method. Normally you will define both a `success` and an
+    `error` callback so your application can handle the result of the method call.
+
+    Review the [optional callback properties](commonArgs) documentation for details.
 
     ### Example applications
 
     Example applications are located in the `example` folder of the module.
+
+    ## Authors
+
+    Jeff English, Rick Blalock, Bert Grantges
 
     ## Module History
 
@@ -42,7 +133,102 @@ description: |
     Copyright(c) 2011-2013 by Appcelerator, Inc. All Rights Reserved. Please see the LICENSE file included in the distribution for further details.
 
 examples:
+  - title: Create a connected app
+    example: |
+      This example demonstrates the creation of a connected app instance.
+
+          var connectedApp = new salesforce.ConnectedApp({
+                  clientId : <DEVELOPER CLIENT ID>,
+                  clientSecret : <DEVELOPER SECRET>
+              });
+
+  - title: Login using the username-password workflow
+    example: |
+      This example demonstrates logging in with a username and password.
+
+          connectedApp.securityToken = <SECURITY TOKEN>;
+          connectedApp.loginApi({
+              username : <USERNAME>,
+              password : <PASSWORD>,
+              success : function(results, meta) {...},
+              error : function(results, meta) {...}
+          });
+
+  - title: Login using the user-agent workflow
+    example: |
+      This example demonstrates logging in with the Salesforce user-agent.
+
+          connectedApp.login({
+              success : function(results, meta) {...},
+              error : function(results, meta) {...}
+          });
+
+  - title: Retrieve available versions
+    example: |
+      This example demonstrates retrieving the available Salesforce versions.
+
+          salesforce.versions({
+              success : function(results, meta) {...},
+              error : function(results, meta) {...}
+          });
+
+  - title: Example of callbacks
+    example: |
+      The following example demonstrates the definition of all of the supported callbacks
+      available on every method call. All of the callbacks are optional.
+
+          salesforce.versions({
+              success: function(results, meta) {
+                  Ti.API.info('Number of versions: ' + results.length);
+                  Ti.API.info(JSON.stringify(results);
+
+                  Ti.API.info('Request time: ' + meta.time);
+              },
+              error: function(error, meta) {
+                  Ti.API.error('ERROR:' + error.message);
+              },
+              progress: function(percent) {
+                  Ti.API.info('Percent complete: ' + (percent * 100) + '%');
+              },
+              beforeSend: function(xhr) {
+                  Ti.API.info('About to send request');
+              }
+          });
 
 properties:
+  - name: ConnectedApp
+    summary: Class used to represent a Salesforce Connected Application instance
+    description: |
+        Create an instance of this class for each salesforce instance that you need
+        to reference in your application. Use the `new` operator to construct a new
+        object of this type.
+    type: ConnectedApp
+    accessors: false
 
 methods:
+  - name: versions
+    summary: Retrieve available version information from Salesforce
+    description: |
+        Lists summary information about each Salesforce version currently available,
+        including the version, label, and a link to each version's root.
+    parameters:
+      - name: args
+        summary: A dictionary of properties for the operation.
+        type: Dictionary<versionsArgs>
+
+---
+name: versionsArgs
+platforms: [android, iphone, ipad]
+summary: Argument passed to the `versions` method
+since: "1.0.0"
+extends: commonArgs
+properties:
+  - name: instanceUrl
+    summary: The Salesforce instance URL used to request versions.
+    description: |
+        The results are returned in the first argument to the `successCallback` callback function.
+
+        Default value is 'http://na1.salesforce.com'
+    type: String
+    optional: true
+    default: 'http://na1.salesforce.com'

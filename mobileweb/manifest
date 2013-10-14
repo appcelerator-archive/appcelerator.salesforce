@@ -2,10 +2,10 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 0.1.0
+version: 1.0.0
 apiversion: 2
 description: Appcelerator Salesforce
-author: Jeff English
+author: Jeff English, Rick Blalock, Bert Grantges
 license: Appcelerator Commercial License
 copyright: Copyright (c) 2011-2013 by Appcelerator,  Inc.
 
@@ -15,4 +15,4 @@ name: appcelerator.salesforce
 moduleid: appcelerator.salesforce
 guid: fca019ce-b90e-450b-871d-13a9757a472c
 platform: mobileweb
-minsdk: 3.1.1.GA
+minsdk: 3.1.0.GA
