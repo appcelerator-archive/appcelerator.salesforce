@@ -17,8 +17,8 @@ module.exports = new function () {
         salesforce = require('appcelerator.salesforce');
 
 	    credentials = {
-	        clientId : Ti.App.Properties.getString("clientId"),
-	 		clientSecret : Ti.App.Properties.getString("clientSecret"),
+	        consumerKey : Ti.App.Properties.getString("consumerKey"),
+	 		consumerSecret : Ti.App.Properties.getString("consumerSecret"),
 	 		securityToken : Ti.App.Properties.getString("securityToken"),
 		    username : Ti.App.Properties.getString("username"),
 		    password : Ti.App.Properties.getString("password")
@@ -46,8 +46,8 @@ module.exports = new function () {
 		var connectedApp = new salesforce.ConnectedApp();
 
 		valueOf(testRun, connectedApp).shouldBeObject();
-		valueOf(testRun, connectedApp.clientId).shouldBeUndefined();
-		valueOf(testRun, connectedApp.clientSecret).shouldBeUndefined();
+		valueOf(testRun, connectedApp.consumerKey).shouldBeUndefined();
+		valueOf(testRun, connectedApp.consumerSecret).shouldBeUndefined();
 		valueOf(testRun, connectedApp.securityToken).shouldBe('');
 		valueOf(testRun, connectedApp.apiVersion).shouldBe('v26.0');
 		valueOf(testRun, connectedApp.instanceUrl).shouldBeNull();
@@ -86,15 +86,15 @@ module.exports = new function () {
 	this.testConnectedAppInstance = function (testRun) {
 		// Create an instance of our connected application
 		var connectedApp = new salesforce.ConnectedApp({
-			clientId : credentials.clientId,
-			clientSecret : credentials.clientSecret,
+			consumerKey : credentials.consumerKey,
+			consumerSecret : credentials.consumerSecret,
 			securityToken : credentials.securityToken,
 			apiVersion : 'v26.0'
 		});
 
 		valueOf(testRun, connectedApp).shouldBeObject();
-		valueOf(testRun, connectedApp.clientId).shouldBe(credentials.clientId);
-		valueOf(testRun, connectedApp.clientSecret).shouldBe(credentials.clientSecret);
+		valueOf(testRun, connectedApp.consumerKey).shouldBe(credentials.consumerKey);
+		valueOf(testRun, connectedApp.consumerSecret).shouldBe(credentials.consumerSecret);
 		valueOf(testRun, connectedApp.securityToken).shouldBe(credentials.securityToken);
 		valueOf(testRun, connectedApp.apiVersion).shouldBe('v26.0');
 		valueOf(testRun, connectedApp.instanceUrl).shouldBeNull();
@@ -136,8 +136,8 @@ module.exports = new function () {
 	this.testCallbacksAndLoginApi = function (testRun) {
 		// Create an instance of our connected application
 		var connectedApp = new salesforce.ConnectedApp({
-			clientId : credentials.clientId,
-			clientSecret : credentials.clientSecret,
+			consumerKey : credentials.consumerKey,
+			consumerSecret : credentials.consumerSecret,
 			securityToken : credentials.securityToken,
 			apiVersion : 'v26.0'
 		});

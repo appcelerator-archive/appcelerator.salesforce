@@ -12,8 +12,8 @@
  * 2. Create a 'connected app' object for each salesforce app instance
  *
  *    var connectedApp = new Salesforce.ConnectedApp({
- *            clientId : <DEVELOPER CLIENT ID>,
- *            clientSecret : <DEVELOPER SECRET>
+ *            consumerKey : <DEVELOPER CONSUMER KEY>,
+ *            consumerSecret : <DEVELOPER CONSUMER SECRET>
  *        });
  *
  * 3. Login using either the username-password (API) or user-agent flow (web page)
@@ -92,11 +92,11 @@ exports.ConnectedApp = ConnectedApp;
 function ConnectedApp(args) {
 	args = args || {};
 
-	if (!args.clientId) {
-		Ti.API.warn('clientId is missing');
+	if (!args.consumerKey) {
+		Ti.API.warn('consumerKey is missing');
 	}
-	if (!args.clientSecret) {
-		Ti.API.warn('secret is missing.');
+	if (!args.consumerSecret) {
+		Ti.API.warn('consumerSecret is missing.');
 	}
 
 	// General properties
@@ -105,8 +105,8 @@ function ConnectedApp(args) {
 	this.timeout = args.timeout || DEFAULT_TIMEOUT;
 
 	// Authentication properties
-	this.clientId = args.clientId;
-	this.clientSecret = args.clientSecret;
+	this.consumerKey = args.consumerKey;
+	this.consumerSecret = args.consumerSecret;
 	this.currentUser = args.currentUser || null;
 	this.securityToken = args.securityToken || '';
 	this.accessToken = args.accessToken;
@@ -314,33 +314,56 @@ ConnectedApp.prototype.loginApi = function(args) {
 			grant_type: "password",
 			username: args.username,
 			password: args.password + (args.securityToken || this.securityToken || ''),
-			client_id: this.clientId,
-			client_secret: this.clientSecret
+			client_id: this.consumerKey,
+			client_secret: this.consumerSecret
 		}
 	});
 };
 
 ConnectedApp.prototype.login = function(args) {
 	var host = this, loggedIn = false, response = {};
+	var modal, webView, closeButton;
 	var redirectUri = this.redirectUri;
 	var meta = {
-		url: getAuthorizeUrl(this.loginUrl || DEFAULT_LOGIN_URL, this.clientId, this.redirectUri)
+		url: getAuthorizeUrl(this.loginUrl || DEFAULT_LOGIN_URL, this.consumerKey, this.redirectUri)
 	};
 
-	// Create the default user interface
-	var modal = Ti.UI.createWindow({
-		modal: true,
-		title: args.title || 'salesforce',
-		width: args.width || '100%',
-		height: args.height || '100%'
-	});
+	// If the caller provides a window then use it; otherwise, create the default window
+	if (args.window) {
+		modal = args.window;
+	} else {
+		modal = Ti.UI.createWindow({
+			title: args.title || 'salesforce',
+			width: args.width || '100%',
+			height: args.height || '100%'
+		});
 
-	var webView = Ti.UI.createWebView({
-		url: meta.url,
-		scalesPageToFit: args.scalesPageToFit || false,
-		showScrollbars: args.showScrollbars || true
-	});
+		if (Ti.Platform.osname != 'android') {
+			closeButton = Ti.UI.createButton({
+				title: 'Close'
+			});
+			closeButton.addEventListener('click', function(){
+				modal.close();
+			});
+			modal.leftNavButton = closeButton;
+		}
+	}
+	modal.addEventListener('close', closeHandler);
 
+	// If the caller provides a webView then use it; otherwise, create the default webView
+	if (args.webView) {
+		webView = args.webView;
+	} else {
+		webView = Ti.UI.createWebView({
+			scalesPageToFit: args.scalesPageToFit || true,
+			showScrollbars: args.showScrollbars || true
+		});
+	}
+	webView.url = meta.url;
+	webView.addEventListener('beforeload', checkResponse);
+	webView.addEventListener('load', checkResponse);
+
+	// Create the loading indicator
 	var loading = Ti.UI.createLabel({
 		text: 'Loading, please wait...',
 		color: 'black',
@@ -348,20 +371,6 @@ ConnectedApp.prototype.login = function(args) {
 		height: Ti.UI.SIZE || 'auto',
 		zIndex: 100
 	});
-
-	webView.addEventListener('beforeload', checkResponse);
-	webView.addEventListener('load', checkResponse);
-	modal.addEventListener('close', closeHandler);
-
-	if (Ti.Platform.osname != 'android') {
-		var closeButton = Ti.UI.createButton({
-			title: 'Close'
-		});
-		closeButton.addEventListener('click', function(){
-			modal.close();
-		});
-		modal.leftNavButton = closeButton;
-	}
 
 	function closeHandler() {
 		Ti.API.debug("SalesForce Login Successful - Token: " + host.accessToken);
@@ -384,7 +393,9 @@ ConnectedApp.prototype.login = function(args) {
 
 	modal.add(webView);
 	modal.add(loading);
-	modal.open();
+	modal.open({
+		modal: true
+	});
 
 	function decodeOAuthResponse(fragment) {
 		var result = {};
@@ -462,8 +473,8 @@ ConnectedApp.prototype.refresh = function(args) {
 		data: {
 			grant_type: "refresh_token",
 			refresh_token: args.refreshToken || this.refreshToken,
-			client_id: this.clientId,
-			client_secret: this.clientSecret
+			client_id: this.consumerKey,
+			client_secret: this.consumerSecret
 		}
 	});
 };
@@ -558,9 +569,9 @@ Operations.prototype.sendRequest = function(args, request) {
 // Utility functions
 //-----------------------------------------------------------------------------
 
-function getAuthorizeUrl(loginUrl, clientId, redirectUri) {
+function getAuthorizeUrl(loginUrl, consumerKey, redirectUri) {
     return loginUrl + '?display=touch'
-        + '&response_type=token&client_id='+encodeURIComponent(clientId)
+        + '&response_type=token&client_id='+encodeURIComponent(consumerKey)
         + '&redirect_uri='+encodeURIComponent(redirectUri);
 }
 

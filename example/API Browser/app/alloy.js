@@ -8,8 +8,8 @@
  * Modify the following set of values in the `config.json` file before running the application:
  *
  * 	"global": {
- *		"clientId" : "<APPLICATION CLIENT ID>",
- *		"clientSecret" : "<APPLICATION SECRET",
+ *		"consumerKey" : "<APPLICATION CONSUMER KEY>",
+ *		"consumerSecret" : "<APPLICATION CONSUMER SECRET",
  *		"securityToken" : "<USER SECURITY TOKEN>",
  *		"username": "<USERNAME>",
  *		"password": "<PASSWORD>"

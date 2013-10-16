@@ -2,8 +2,8 @@ var salesforce = require('appcelerator.salesforce');
 
 // Create an instance of our connected application
 var connectedApp = new salesforce.ConnectedApp({
-	clientId : Alloy.CFG.clientId,
-	clientSecret : Alloy.CFG.clientSecret,
+	consumerKey : Alloy.CFG.consumerKey,
+	consumerSecret : Alloy.CFG.consumerSecret,
 	securityToken : Alloy.CFG.securityToken,
 	apiVersion : 'v26.0'
 });
