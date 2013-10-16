@@ -75,8 +75,8 @@ description: |
     2. Create a 'connected app' object for each salesforce app instance
 
             var connectedApp = new salesforce.ConnectedApp({
-                    clientId : <DEVELOPER CLIENT ID>,
-                    clientSecret : <DEVELOPER SECRET>
+                    consumerKey : <DEVELOPER CONSUMER KEY>,
+                    consumerSecret : <DEVELOPER CONSUMER SECRET>
                 });
 
     3. Login using either the username-password (API) or user-agent flow (web page)
@@ -138,8 +138,8 @@ examples:
       This example demonstrates the creation of a connected app instance.
 
           var connectedApp = new salesforce.ConnectedApp({
-                  clientId : <DEVELOPER CLIENT ID>,
-                  clientSecret : <DEVELOPER SECRET>
+                  consumerKey : <DEVELOPER CONSUMER KEY>,
+                  consumerSecret : <DEVELOPER CONSUMER SECRET>
               });
 
   - title: Login using the username-password workflow

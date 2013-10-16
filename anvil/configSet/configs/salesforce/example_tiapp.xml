@@ -35,8 +35,8 @@
         <module platform="iphone">appcelerator.salesforce</module>
         <module platform="mobileweb">appcelerator.salesforce</module>
     </modules>
-    <property name="clientId"></property>
-    <property name="clientSecret"></property>
+    <property name="consumerKey"></property>
+    <property name="consumerSecret"></property>
     <property name="securityToken"></property>
     <property name="username"></property>
     <property name="password"></property>
