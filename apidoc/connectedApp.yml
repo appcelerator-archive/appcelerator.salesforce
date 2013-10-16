@@ -113,7 +113,7 @@ methods:
   - name: loginApi
     summary: Login using the username-password authentication flow.
     description: |
-        Ensure that the `clientId` and `clientSecret` properties of the ConnectedApp object are set
+        Ensure that the `consumerKey` and `consumerSecret` properties of the ConnectedApp object are set
         before calling this method. Either set the `securityToken` property of the ConnectedApp object
         before calling this method or provide the `securityToken` in the arguments.
     parameters:
@@ -124,7 +124,7 @@ methods:
   - name: login
     summary: Login using the user-agent authentication flow.
     description: |
-        Ensure that the `clientId` property of the ConnectedApp object is set
+        Ensure that the `consumerKey` property of the ConnectedApp object is set
         before calling this method.
     parameters:
       - name: args
@@ -156,9 +156,44 @@ examples:
       This example demonstrates the creation of a connected app instance.
 
           var connectedApp = new salesforce.ConnectedApp({
-                  clientId : <DEVELOPER CLIENT ID>,
-                  clientSecret : <DEVELOPER SECRET>
+                  consumerKey : <DEVELOPER CONSUMER KEY>,
+                  consumerSecret : <DEVELOPER CONSUMER SECRET>
               });
+
+  - title: Login using a custom window and web view
+    example: |
+      This example demonstrates using the user-agent authentication flow with a custom window and webview.
+
+            var modal = Ti.UI.createWindow({
+                title: 'My Login',
+                width: '100%',
+                height: '100%',
+                barColor: 'green'
+            });
+
+            var closeButton = Ti.UI.createButton({
+                title: 'Close'
+            });
+            closeButton.addEventListener('click', function(){
+                modal.close();
+            });
+            modal.leftNavButton = closeButton;
+
+            var webView = Ti.UI.createWebView({
+                scalesPageToFit: true,
+                showScrollbars: true
+            });
+
+            connectedApp.login({
+                window: modal,
+                webView: webView,
+                success : function(results) {
+                    Ti.API.info('Logged in';
+                },
+                error: function(error) {
+                    Ti.API.error('ERROR:' + error.message);
+                }
+            });
 
   - title: Get a list of objects
     example: |
@@ -292,11 +327,11 @@ examples:
           });
 
 properties:
-  - name: clientId
+  - name: consumerKey
     summary: The `Consumer Key` from the connected application definition.
     type: String
 
-  - name: clientSecret
+  - name: consumerSecret
     summary: The `Consumer Secret` from the connected application definition.
     type: String
 
@@ -662,38 +697,58 @@ properties:
     type: String
 
   - name: title
-    summary: Title for the modal dialog
+    summary: Title for the default modal window
     description: |
-        Default value is 'salesforce'.
+        Default value is 'salesforce'. Ignored if `window` is provided.
     type: String
     optional: true
 
   - name: width
-    summary: Width of the modal dialog
+    summary: Width of the default modal window
     description: |
-        Default value is '100%'
+        Default value is '100%'. Ignored if `window` is provided.
     type: [String, Number]
     optional: true
 
   - name: height
-    summary: Height of the modal dialog
+    summary: Height of the default modal window
     description: |
-        Default value is '100%'
+        Default value is '100%'. Ignored if `window` is provided.
     type: [String, Number]
     optional: true
 
   - name: scalesPageToFit
     summary: Scale contents to fit the web view
     description: |
-        Default value is false
+        Default value is true. Ignored if `webView` is provided.
     type: Boolean
     optional: true
 
   - name: showScrollbars
     summary: Show scroll bars in the web view
     description: |
-        Default value is true
+        Default value is true. Ignored if `webView` is provided.
     type: Boolean
+    optional: true
+
+  - name: window
+    summary: Custom window used to load the web view
+    description: |
+        A custom window that will contain the login web view. Use this property to define a custom
+        window to contain the Salesforce webview used for login. If this property is not provided then
+        a default window is created for the application.
+
+        Note that the window will be opened as a modal window.
+    type: Ti.UI.Window
+    optional: true
+
+  - name: webView
+    summary: Custome webView used to load the Salesforce login url
+    description: |
+        A custom webView that will contain the Salesforce login page. Use this property to define a custom
+        webView to contain the Salesforce login UI. If this property is not provided then a default
+        webView is created for the application.
+    type: Ti.UI.WebView
     optional: true
 
 ---
