@@ -287,12 +287,12 @@ examples:
           connectedApp.upsertBlob({
               name: 'Document',
               blobField: 'Body',
+              blob: blob,
               data: {
                   "Name" : "Default image",
                   "FolderId": "00li0000000UAFuAAO",
-                  "Body": blob,
-                  "Type": 'png'
-                  // ContentType automatically determined from blob's mime type
+                  "Type": 'png',
+                  "ContentType": blob.mimeType;
               },
               success: function(results) {
                   Ti.API.info('id: ' + results.id);
@@ -422,6 +422,24 @@ properties:
         The default value is 'https://login.salesforce.com/services/oauth2/success'.
     type: String
 
+  - name: accept
+    summary: Format of the result data returned from most requests
+    description: |
+        Specifies the format of the result object returned for most requests. This value can either be
+        'application/json' or 'application/xml'.
+
+        The default value is 'application/json'.
+    type: String
+
+  - name: contentType
+    summary: Format of the data to be sent in most requests
+    description: |
+        Specifies the format of the data property for most requests. This value can either be
+        'application/json' or 'application/xml'.
+
+        The default value is 'application/json'.
+    type: String
+
 ---
 name: sobjects
 platforms: [android, iphone, ipad]
@@ -464,7 +482,7 @@ properties:
 
   - name: data
     summary: Dictonary of key-value pairs for the record.
-    type: Dictionary
+    type: [Dictionary, Ti.XML.Document]
 
 ---
 name: retrieve
@@ -508,7 +526,7 @@ properties:
 
   - name: data
     summary: Dictonary of key-value pairs for the record.
-    type: Dictionary
+    type: [Dictionary, Ti.XML.Document]
 
 ---
 name: remove
@@ -537,19 +555,18 @@ properties:
     type: String
 
   - name: blobField
-    summary: Name of the blob field in the record
-    description: |
-        Ensure that the `data` dictionary contains a key with this name and
-        a value of a Ti.Blob object.
+    summary: Name of the blob field for the record
     type: String
 
+  - name: blob
+    summary: The blob object to upsert
+    type: Ti.Blob
+
   - name: data
-    summary: Dictonary of key-value pairs for the record.
+    summary: Dictionary of key-value pairs for the record
     description: |
-        The content type of the Ti.Blob object will be set as the contentType
-        of the blob object. If a different content type is needed, set the 'ContentType'
-        property in the data dictionary.
-    type: Dictionary
+        Do not include the blob data in this dictionary.
+    type: [Dictionary, Ti.XML.Document]
 
   - name: id
     summary: Identifier of the SObject
@@ -617,7 +634,7 @@ properties:
 
   - name: data
     summary: Dictonary of key-value pairs for the record.
-    type: Dictionary
+    type: [Dictionary, Ti.XML.Document]
 
 ---
 name: query

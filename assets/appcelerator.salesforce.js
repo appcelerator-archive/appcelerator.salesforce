@@ -68,7 +68,8 @@ exports.versions = function(args) {
 		success: args.success,
 		error: args.error,
 		progress: args.progress,
-		beforeSend: args.beforeSend
+		beforeSend: args.beforeSend,
+		accept: args.accept || 'application/json'
 	 });
 };
 
@@ -115,6 +116,8 @@ function ConnectedApp(args) {
 	this.loginUrl = args.loginUrl;
 	this.redirectUri = args.redirectUri || DEFAULT_REDIRECT_URI;
 	this.headers = null;
+	this.contentType = args.contentType || 'application/json';
+	this.accept = args.accept || 'application/json';
 
 	// Cascading operations controller
 	this.operations = new Operations(this);
@@ -200,11 +203,12 @@ ConnectedApp.prototype.remove = function(args) {
 };
 
 ConnectedApp.prototype.upsertBlob = function(args) {
-	var url, dataProp = {};
+	var url, contentType;
+	var encodedBlob, blobElement, textNode;
 
 	this.operations.validate(args, {
 		authorized: true,
-		required: [ 'name', 'data', 'blobField' ]
+		required: [ 'name', 'data', 'blob', 'blobField' ]
 	}).then(function() {
 		url = this.instanceUrl + '/services/data/' + this.apiVersion + '/sobjects/' + args.name;
 		// If an id is provided then this is an update request -- adjust the URL accordingly
@@ -212,20 +216,31 @@ ConnectedApp.prototype.upsertBlob = function(args) {
 			url += '/' + args.id + '?_HttpMethod=PATCH';
 		}
 
-		// Shallow copy the data since we're going to modify one of the properties
-		dataProp = copyProperties(args.data);
+		contentType = args.contentType || this.contentType;
 
-		// If a contentType was not provided, use the mimeType from the blob
-		if (!dataProp.ContentType) {
-			dataProp.ContentType = dataProp[args.blobField].mimeType;
-		}
-
+		// Set the blob field value
 		// Base64 encode the blob data
-		dataProp[args.blobField] = '' + Ti.Utils.base64encode(dataProp[args.blobField]);
+		encodedBlob = '' + Ti.Utils.base64encode(args.blob);
+
+		if (isJSON(contentType)) {
+			args.data[args.blobField] = encodedBlob;
+		} else if (isXML(contentType)) {
+			blobElement = args.data.createElement(args.blobField);
+			textNode = args.data.createTextNode(encodedBlob);
+			blobElement.appendChild(textNode);
+			args.data.documentElement.appendChild(blobElement);
+		}
 	}).sendRequest(args, {
 		url: url,
 		type: 'POST',
-		data: dataProp
+		data: args.data
+	}).then(function() {
+		// Remove the value that we added for the request
+		if (isJSON(contentType)) {
+			delete args.data[args.blobField];
+		} else if (isXML(contentType)) {
+			args.data.documentElement.removeChild(blobElement);
+		}
 	});
 };
 
@@ -310,6 +325,8 @@ ConnectedApp.prototype.loginApi = function(args) {
 		url: this.loginUrl || DEFAULT_LOGINAPI_URL,
 		type: 'POST',
 		contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+		accept: 'application/json',
+		headers: [],
 		data: {
 			grant_type: "password",
 			username: args.username,
@@ -470,6 +487,7 @@ ConnectedApp.prototype.refresh = function(args) {
 		url: this.loginUrl || DEFAULT_LOGINAPI_URL,
 		type: 'POST',
 		contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+		accept: 'application/json',
 		data: {
 			grant_type: "refresh_token",
 			refresh_token: args.refreshToken || this.refreshToken,
@@ -549,16 +567,15 @@ Operations.prototype.validate = function(args, validations) {
 
 Operations.prototype.sendRequest = function(args, request) {
 	request.type = request.type || 'GET';
-	request.headers = request.headers || args.headers || this.host.headers;
+	request.headers = request.headers || this.host.headers;
 	request.timeout = request.timeout || args.timeout || this.host.timeout;
 	request.success = request.success || args.success;
 	request.error = request.error || args.error;
 	request.progress = request.progress || args.progress;
 	request.beforeSend = request.beforeSend || args.beforeSend;
 
-	if (request.type === 'POST') {
-		request.contentType = request.contentType || args.contentType || 'application/json; charset=utf-8';
-	}
+	request.contentType = request.contentType || args.contentType || this.host.contentType;
+	request.accept = request.accept || args.accept || this.host.accept;
 
 	httpRequest(request);
 
@@ -619,6 +636,14 @@ function copyProperties(src) {
 	return tgt;
 }
 
+function isJSON(str) {
+	return str && str.match(/application\/json/i);
+}
+
+function isXML(str) {
+	return str && str.match(/application\/xml/i);
+}
+
 //-----------------------------------------------------------------------------
 // HTTP Request
 //-----------------------------------------------------------------------------
@@ -671,22 +696,25 @@ function httpRequest(params) {
 	}
 
 	function parseResponse(xhr, useData) {
-		var json;
+		var text;
 		meta.contentType = xhr.getResponseHeader('Content-Type');
-		if (meta.contentType && meta.contentType.match(/application\/json/i)) {
-			json = xhr.responseText;
-			if (json && json.length > 0) {
-				meta.bytesReceived = json.length;
-				try {
-					response = JSON.parse(json);
-				} catch (e) {
-					response = {}
-				}
+		text = xhr.responseText;
+		if (text && text.length > 0) {
+			meta.bytesReceived = text.length;
+		}
+		if (isJSON(meta.contentType)) {
+			try {
+				response = JSON.parse(text);
+			} catch (e) {
+				response = {};
 			}
-		} else if (useData) {
+		} else if (isXML(meta.contentType)) {
+			response = xhr.responseXML;
+		} else if (useData && meta.contentType) {
 			response = xhr.responseData || {};
 			meta.bytesReceived = response ? response.length : 0;
 		}
+		text = null;
 	}
 
 	xhr.onload = function() {
@@ -753,13 +781,19 @@ function httpRequest(params) {
 		}
 	}
 
-	// If there the content type is JSON and the data is an object then it must
-	// be stringified before sending
+	if (params.accept) {
+		xhr.setRequestHeader('Accept', params.accept);
+	}
+
 	body = params.data;
 	if (body && params.contentType) {
 		xhr.setRequestHeader('Content-Type', params.contentType);
-		if (params.contentType.match(/application\/json/i) && typeof body === 'object') {
-			body = JSON.stringify(body);
+		if (typeof body === 'object') {
+			if (isJSON(params.contentType)) {
+				body = JSON.stringify(body);
+			} else if (isXML(params.contentType)) {
+				body = Ti.XML.serializeToString(body);
+			}
 		}
 	}
 

@@ -11,7 +11,17 @@ function formatJSON(evt) {
 }
 
 function logResults(e, meta) {
-	$.resultsTextArea.value = formatJSON(e);
+	if (meta.contentType) {
+		if (meta.contentType.match(/application\/xml/i)) {
+			$.resultsTextArea.value = Ti.XML.serializeToString(e);
+		} else if (meta.contentType.match(/application\/json/i)) {
+			$.resultsTextArea.value = formatJSON(e);
+		} else {
+			$.resultsTextArea.value = e;
+		}
+	} else {
+		$.resultsTextArea.value = e;
+	}
 	$.metaTextArea.value = formatJSON(meta); 
 }
 

@@ -2,6 +2,8 @@ var salesforce = require('appcelerator.salesforce');
 
 // Create an instance of our connected application
 var connectedApp = new salesforce.ConnectedApp({
+	//contentType : 'application/xml',      // 'application/json' is the default
+	//accept : 'application/xml',           // 'application/json' is the default
 	consumerKey : Alloy.CFG.consumerKey,
 	consumerSecret : Alloy.CFG.consumerSecret,
 	securityToken : Alloy.CFG.securityToken,
@@ -72,14 +74,31 @@ exports.describe = function(logResults) {
 };
 
 exports.create = function(logResults) {
+	var data;
+	
+	if (connectedApp.contentType == 'application/json') {
+		data = {
+			"Name" : "Express Logistics and Transport"
+		};
+	} else {
+		data = Ti.XML.parseString('<Record>' +
+			'<Name>Express Logistics and Transport</Name>' +
+			'</Record>'
+		);
+	}
 	connectedApp.create({
 		name: 'Account',
-		data: {
-			"Name" : "Express Logistics and Transport"
-		},
+		data: data,
 		success : function(results, meta) {
 			logResults(results,  meta);
-			lastId = results.id;
+			if (meta.contentType.match(/application\/json/i)) {
+				lastId = results.id;
+			} else if (meta.contentType.match(/application\/xml/i)) {
+				data = results.documentElement.getElementsByTagName('id');
+				if (data && data.length > 0) {
+					lastId = data.item(0).textContent;
+				}
+			}
 			// Persist the id 
 			Ti.App.Properties.setString('lastId', lastId);
 		},
@@ -100,12 +119,22 @@ exports.retrieve = function(logResults) {
 };
 
 exports.update = function(logResults) {
+	var data;
+	
+	if (connectedApp.contentType == 'application/json') {
+		data = {
+			"BillingCity" : "San Francisco"
+		};
+	} else {
+		data = Ti.XML.parseString('<Record>' +
+			'<BillingCity>San Francisco</BillingCity>' +
+			'</Record>'
+		);
+	}
 	connectedApp.update({
 		name: 'Account',
 		id: lastId,
-		data: {
-		    "BillingCity" : "San Francisco"
-		},
+		data: data,
 		success : logResults,
 		error : logResults
 	});
@@ -149,20 +178,39 @@ exports.upsertBlob = function(logResults) {
 		throw new Error('Missing `appicon.png` file');
 	}
 	var blob = file.read();
+	var data;
 
+	if (connectedApp.contentType == 'application/json') {
+		data = {
+			"Name" : "App Icon",
+			"FolderId": "00li0000000UAFuAAO",
+			"Type": 'png',
+			"ContentType": blob.mimeType
+		};
+	} else {
+		data = Ti.XML.parseString('<Record>' +
+			'<Name>App Icon</Name>' +
+			'<FolderId>00li0000000UAFuAAO</FolderId>' +
+			'<Type>png</Type>' +
+			'<ContentType>' + blob.mimeType + '</ContentType>' +
+			'</Record>'
+		);
+	}
 	connectedApp.upsertBlob({
 		name: 'Document',
 		blobField: 'Body',
-		data: {
-			"Name" : "App Icon",
-			"FolderId": "00li0000000UAFuAAO",
-			"Body": blob,
-			"Type": 'png'
-			// ContentType automatically determined from blob's mime type
-		},
+		blob: blob,
+		data: data,
 		success : function(results, meta) {
 			logResults(results, meta);
-			lastImageId = results.id;
+			if (meta.contentType.match(/application\/json/i)) {
+				lastImageId = results.id;
+			} else if (meta.contentType.match(/application\/xml/i)) {
+				data = results.documentElement.getElementsByTagName('id');
+				if (data && data.length > 0) {
+					lastImageId = data.item(0).textContent;
+				}
+			}
 			// Persist the image id
 			Ti.App.Properties.setString('lastImageId', lastImageId);
 		},
@@ -186,14 +234,26 @@ exports.retrieveBlob = function(logResults) {
 };
 
 exports.upsertExternal = function(logResults) {
+	var data;
+	
+	if (connectedApp.contentType == 'application/json') {
+		data = {
+			"Name" : "California Wheat Corporation",
+			"Type" : "New Customer"
+		};
+	} else {
+		data = Ti.XML.parseString('<Record>' +
+			'<Name>California Wheat Corporation</Name>' +
+			'<Type>New Customer</Type>' +
+			'</Record>'
+		);
+	}
+	
 	connectedApp.upsertExternal({
 		name: 'Account',
 		fieldName: 'customExtIdField__c',
 		fieldValue: '11999',
-		data: {
-			"Name" : "California Wheat Corporation",
-			"Type" : "New Customer"
-		},
+		data: data,
 		success : logResults,
 		error : logResults
 	});
