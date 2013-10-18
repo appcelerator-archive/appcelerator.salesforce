@@ -42,6 +42,11 @@ properties:
         response varies based on the method that is executed. Refer to the
         [Force.com REST API](http://www.salesforce.com/us/developer/docs/api_rest/index.htm)
         documentation for details on the expected response.
+        The type of this object will depend on the `accept` data format property. It will be a Javascript dictionary object if 'application/json' was
+        specified or it will be a Ti.XML.Document object if 'application/xml' was specified.
+        Note that for the `login`, `loginAPI`, and `refresh` methods the type of this object will
+        always be a Javascript dictionary object. For the `retrieveBlob` method the type of this object
+        will be a Ti.Blob object.
 
         The second parameter to this callback is the [request metadata](requestMetadata) dictionary.
         This parameter is optional and is provided for informational purposes.
@@ -86,10 +91,34 @@ properties:
   - name: timeout
     summary: Timeout in milliseconds when the connection should be aborted.
     description: |
-        The timeout property of the [ConnectedApp](ConnectedApp) object is used on every request, but can
+        The `timeout` property of the [ConnectedApp](ConnectedApp) object is used on every request, but can
         be overridden for individual requests by including this property.
 
         This property is optional.
+
+  - name: accept
+    summary: Format of the result data returned from the request
+    description: |
+        The `accept` property of the [ConnectedApp](ConnectedApp) object is used on most requests, but can
+        be overridden for individual requests by including this property. This value can either be
+        'application/json' or 'application/xml'. This value determines the type of the result object passed as the first parameter
+        of the `success` callback.
+
+        This property is optional.
+    type: String
+    optional: true
+
+  - name: contentType
+    summary: Format of the data to be sent in the request
+    description: |
+        The `contentType` property of the [ConnectedApp](ConnectedApp) object is used on most requests, but can
+        be overridden for individual requests by including this property. This value can either be
+        'application/json' or 'application/xml'. This value determines the expected type of the `data` property
+        that is specified in the arguments passed to most methods.
+
+        This property is optional.
+    type: String
+    optional: true
 
 ---
 name: errorDetails

@@ -112,6 +112,24 @@ description: |
 
     Review the [optional callback properties](commonArgs) documentation for details.
 
+    ### JSON and XML support
+
+    The module supports both JSON and XML data format. JSON is the default. The format to use can be controlled by either setting the `contentType` and `accept` properties
+    of the [ConnectedApp](ConnectedApp) object or by setting the `contentType` and `accept` properties in the arguments passed to each method. The exceptions to this
+    are the `login`, `loginApi`, and `refresh` methods. Those methods always return JSON results.
+
+    For example, to set XML as the default format for all of the methods you could set the properties on the ConnectedApp object:
+
+            connectedApp.contentType = 'application/xml';
+            connectedApp.accept = 'application/xml';
+
+    Again, the default is JSON, but if you want to explicitly set the format on the ConnectedApp object:
+
+            connectedApp.contentType = 'application/json';
+            connectedApp.accept = 'application/json';
+
+    The `API Browser` example application has code that supports both formats.
+
     ### Example applications
 
     Example applications are located in the `example` folder of the module.
