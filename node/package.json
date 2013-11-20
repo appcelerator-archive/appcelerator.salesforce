@@ -1,0 +1,25 @@
+{
+  "name": "salesforce",
+  "version": "0.1.0",
+  "description": "Salesforce api",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "superagent": "~0.15.7"
+  },
+  "devDependencies": {
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appcelerator-modules/appcelerator.salesforce.git"
+  },
+  "keywords": [
+    "salesforce"
+  ],
+  "author": "Appcelerator Inc.",
+  "license": "PRIVATE",
+  "bugs": {
+    "url": "https://github.com/appcelerator-modules/appcelerator.salesforce/issues"
+  }
+}
