@@ -2,9 +2,10 @@
 #
 # Appcelerator Titanium Module Packager
 #
+import os.path
 
 version = '3.1.0.GA'
-sdk_path = r'/Library/Application Support/Titanium/mobilesdk/osx/3.1.0.GA'
+sdk_path = os.path.expanduser('~') + '/Library/Application Support/Titanium/mobilesdk/osx/%s' % version
 
 import os, sys, time, datetime, string, math, zipfile, codecs, re, shutil, subprocess, base64
 from datetime import date

@@ -1,5 +1,7 @@
 # Change Log
 <pre>
+V1.0.3 	Rebuild modules for 64-bit architectures [TIMOB-18092]
+
 v1.0.2  Added support for XML format
 
 v1.0.1  Renamed clientId to consumerKey
