@@ -189,7 +189,11 @@ def main(args):
     config['modlist']=[]
 
     # Generate the documentation from apidoc files
-    doc_cmd = '~/Titanium/titanium_mobile/apidoc/./docgen.py -f modulehtml -o dist/apidoc -e --css styles.css  apidoc'
+    doc_cmd_path = '../titanium_mobile/apidoc/docgen.py'
+    if not os.path.exists(doc_cmd_path):
+        sys.exit("Couldn't find docgen.py at: %s" % doc_cmd_path)
+
+    doc_cmd = doc_cmd_path + ' -f modulehtml -o dist/apidoc -e --css styles.css  apidoc'
     fork('.', doc_cmd, False)
 
     select_modules(config)
