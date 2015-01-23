@@ -2,7 +2,7 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 1.0.3
+version: 1.1.0
 apiversion: 2
 architectures: x86_64 i386 arm64 armv7
 description: Appcelerator Salesforce
