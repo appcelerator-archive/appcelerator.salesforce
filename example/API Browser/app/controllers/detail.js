@@ -27,7 +27,7 @@ function logResults(e, meta) {
 
 exports.callApi = function(title) {
 	if (OS_ANDROID) {
-		$.title.text = 'API: ' + title;
+		$.detail.text = 'API: ' + title;
 	} else {
 		$.detail.title = title;
 	}

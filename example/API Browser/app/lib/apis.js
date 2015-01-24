@@ -173,7 +173,7 @@ exports.searchScopeOrder = function(logResults) {
 };
 
 exports.upsertBlob = function(logResults) {
-	var file = Ti.Filesystem.getFile('appIcon.png');
+	var file = Ti.Filesystem.getFile('appicon.png');
 	if (!file.exists()) {
 		throw new Error('Missing `appicon.png` file');
 	}
