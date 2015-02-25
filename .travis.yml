@@ -6,6 +6,8 @@ before_install:
     - MODULE_ROOT=$PWD
 install:
     - cd $MODULE_ROOT
+    - curl -o install-java-osx.sh https://raw.githubusercontent.com/appcelerator-modules/ci/master/travis/install-java-osx.sh
+    - source install-java-osx.sh
     - curl -o install.sh https://raw.githubusercontent.com/appcelerator-modules/ci/master/travis/install.sh
     - source install.sh
 script: 
