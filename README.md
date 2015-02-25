@@ -1,5 +1,4 @@
 # appcelerator.salesforce [![Build Status](https://magnum.travis-ci.com/appcelerator-modules/appcelerator.salesforce.svg?token=ph6xdReX6PW2XENunBEH&branch=master)](https://magnum.travis-ci.com/appcelerator-modules/appcelerator.salesforce)
-=======================
 
 This is the Salesforce Module for Titanium.
 
